@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Trivia Game</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="Images/MovieIcon.ico" type="image/x-icon">
+</head>
+<body>
+    <div id="title-page" class="page">
+        <h1>Movie Trivia</h1>
+        <div class="button-container">
+            <button id="new-game-btn">New Game</button>
+            <button id="high-scores-btn">High Scores</button>
+        </div>
+    </div>
+
+    <div id="game-page" class="page hidden">
+        <div id="game-header">
+            <div id="timer">Time: <span id="total-time">0</span> seconds</div>
+            <div id="question-counter">Question: <span id="current-question">1</span>/10</div>
+        </div>
+        
+        <div id="movie-plot-container">
+            <p id="movie-plot"></p>
+        </div>
+
+        <div id="guess-container">
+            <input type="text" id="movie-guess" placeholder="Type your movie guess here">
+            <button id="submit-guess">Submit Guess</button>
+        </div>
+
+        <div id="hints-container">
+            <button id="hint1-btn">Get Hint 1 (Genre)</button>
+            <button id="hint2-btn">Get Hint 2 (Release Date)</button>
+            <button id="hint3-btn">Get Hint 3 (Main Cast)</button>
+        </div>
+
+        <div id="feedback-container">
+            <p id="hint-text"></p>
+            <p id="feedback-text"></p>
+        </div>
+
+        <div id="movie-reveal-container" class="hidden">
+            <img id="movie-poster" src="" alt="Movie Poster">
+        </div>
+
+        <div id="game-controls">
+            <button id="next-question-btn" class="hidden">Next Question</button>
+            <button id="give-up-btn">Give Up
+                <span class="tooltip-text">+1 min penalty</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="high-scores-page" class="page hidden">
+        <h2>High Scores</h2>
+        <ol id="high-scores-list"></ol>
+        <button id="return-btn">Return to Title</button>
+    </div>
+
+    <script src="movieTrivia.js"></script>
+</body>
+</html>

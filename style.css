@@ -1,0 +1,242 @@
+/* General Styling */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-image: url('Images/Wallpaper.jpg'); 
+    background-size: cover; 
+    background-position: center center; 
+    background-repeat: no-repeat; 
+    color: #333;
+    text-align: center;
+}
+
+
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4); /* Semi-transparent overlay */
+    z-index: -1; /* Keeps overlay behind content */
+}
+
+.page {
+    background-color: rgba(255, 255, 255, 0.9); /* Slight transparency to let wallpaper show through */
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 700px;
+    width: 100%;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Button Container */
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin-top: 30px;
+}
+
+/* Button Styling */
+button {
+    padding: 12px 25px;
+    background-color: #ff6347; /* Tomato Red */
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+button:hover {
+    background-color: #ff4500; /* Darker Red */
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+button:focus {
+    outline: none;
+}
+
+/* Header Section */
+#game-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #555;
+}
+
+#timer, #question-counter {
+    background: linear-gradient(135deg, #ff6347, #ff4500);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 25px;
+}
+
+/* Movie Plot Container */
+#movie-plot-container {
+    margin-bottom: 25px;
+    min-height: 120px;
+    background-color: #f8f9fa;
+    padding: 18px;
+    border-radius: 8px;
+    font-size: 18px;
+    color: #444;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Movie Guess Input */
+#guess-container {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    justify-content: center;
+}
+
+#movie-guess {
+    flex-grow: 1;
+    padding: 12px;
+    border: 2px solid #ced4da;
+    border-radius: 6px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+#movie-guess:focus {
+    border-color: #ff6347;
+}
+
+/* Hints Section */
+#hints-container {
+    display: flex;
+    justify-content: space-around;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+#hints-container button {
+    background-color: #6c757d;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+#hints-container button:hover {
+    background-color: #5a6268;
+}
+
+/* Feedback Section */
+#feedback-container {
+    margin-bottom: 30px;
+}
+
+#feedback-text {
+    font-size: 16px;
+    color: #28a745; /* Green */
+    font-weight: bold;
+}
+
+#hint-text {
+    font-size: 16px;
+    color: #dc3545; /* Red */
+}
+
+/* Movie Poster Reveal */
+#movie-reveal-container {
+    margin-top: 30px;
+}
+
+#movie-poster {
+    max-width: 100%;
+    max-height: 450px;
+    border-radius: 8px;
+}
+
+/* Game Controls */
+#game-controls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* High Scores Page */
+#high-scores-page {
+    padding: 20px;
+}
+
+#high-scores-list {
+    padding-left: 30px;
+    font-size: 18px;
+    color: #343a40;
+}
+
+#high-scores-list li {
+    margin-bottom: 10px;
+}
+
+/* Tooltip for Give Up Button */
+#give-up-btn {
+    position: relative;
+}
+
+#give-up-btn .tooltip-text {
+    visibility: hidden;
+    background-color: #dc3545;
+    color: white;
+    text-align: center;
+    border-radius: 6px;
+    padding: 6px;
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#give-up-btn:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .page {
+        padding: 20px;
+        max-width: 100%;
+    }
+
+    #game-header {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    #guess-container {
+        flex-direction: column;
+    }
+
+    #movie-guess {
+        margin-bottom: 10px;
+    }
+}
