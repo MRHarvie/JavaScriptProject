@@ -86,16 +86,99 @@ function resetUI() {
     moviePosterContainer.classList.add('hidden');
     nextQuestionBtn.classList.add('hidden');
     submitGuessBtn.disabled = false;
-    movieGuessInput.value = '';
-    movieGuessInput.disabled = false;
+    const movieGuessDropdown = document.getElementById('movie-guess');
+    movieGuessDropdown.disabled = false; // Enable dropdown
+    movieGuessDropdown.value = ''; // Clear any previous selection
 }
+
 
 // Load Movies
 async function loadMovies() {
-    const response = await fetch('movies.json');
-    const data = await response.json();
-    movies = data.movies.sort(() => 0.5 - Math.random());
+    movies = [
+        {
+            "title": "Back to the Future",
+            "plot": "A teenager is accidentally sent back in time from 1985 to 1955, where he meets his future parents and becomes his mother's romantic interest.",
+            "genre": "Science Fiction, Comedy",
+            "releaseDate": "1985",
+            "mainCast": "Michael J. Fox, Christopher Lloyd",
+            "posterPath": "Images/BackToTheFuture.jpg"
+        },
+        {
+            "title": "Fight Club",
+            "plot": "An insomniac office worker and a soap maker form an underground fight club that evolves into something much, much more.",
+            "genre": "Drama, Psychological Thriller",
+            "releaseDate": "1999",
+            "mainCast": "Brad Pitt, Edward Norton",
+            "posterPath": "Images/FightClub.jpg"
+        },
+        {
+            "title": "Forrest Gump",
+            "plot": "The presidencies of Kennedy and Johnson, the Vietnam War, the Watergate scandal and other historical events unfold from the perspective of an Alabama man with an IQ of 75.",
+            "genre": "Drama, Romance",
+            "releaseDate": "1994",
+            "mainCast": "Tom Hanks, Robin Wright",
+            "posterPath": "Images/ForrestGump.jpg"
+        },
+        {
+            "title": "Inception",
+            "plot": "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.",
+            "genre": "Science Fiction, Action",
+            "releaseDate": "2010",
+            "mainCast": "Leonardo DiCaprio, Joseph Gordon-Levitt",
+            "posterPath": "Images/Inception.jpg"
+        },
+        {
+            "title": "Jurassic Park",
+            "plot": "A pragmatic paleontologist visiting an almost complete theme park is tasked with protecting a couple of kids after a power failure causes the park's cloned dinosaurs to run loose.",
+            "genre": "Science Fiction, Adventure",
+            "releaseDate": "1993",
+            "mainCast": "Sam Neill, Laura Dern",
+            "posterPath": "Images/JurassicPark.jpg"
+        },
+        {
+            "title": "The Dark Knight",
+            "plot": "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.",
+            "genre": "Action, Superhero",
+            "releaseDate": "2008",
+            "mainCast": "Christian Bale, Heath Ledger",
+            "posterPath": "Images/TheDarkKnight.jpg"
+        },
+        {
+            "title": "The Godfather",
+            "plot": "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.",
+            "genre": "Crime, Drama",
+            "releaseDate": "1972",
+            "mainCast": "Marlon Brando, Al Pacino",
+            "posterPath": "Images/TheGodfather.jpg"
+        },
+        {
+            "title": "The Matrix",
+            "plot": "A computer programmer discovers that reality as he knows it is a simulation created by machines, and joins a rebellion to overthrow them.",
+            "genre": "Science Fiction, Action",
+            "releaseDate": "1999",
+            "mainCast": "Keanu Reeves, Laurence Fishburne",
+            "posterPath": "Images/TheMatrix.jpg"
+        },
+        {
+            "title": "The Shawshank Redemption",
+            "plot": "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
+            "genre": "Drama",
+            "releaseDate": "1994",
+            "mainCast": "Tim Robbins, Morgan Freeman",
+            "posterPath": "Images/TheShawshankRedemption.jpg"
+        },
+        {
+            "title": "Titanic",
+            "plot": "A seventeen-year-old aristocrat falls in love with a kind but poor artist aboard the luxurious, ill-fated R.M.S. Titanic.",
+            "genre": "Romance, Drama",
+            "releaseDate": "1997",
+            "mainCast": "Leonardo DiCaprio, Kate Winslet",
+            "posterPath": "Images/Titanic.jpg"
+        }
+    ];
+    movies = movies.sort(() => 0.5 - Math.random()); // Shuffle movies randomly
 }
+
 
 function loadNextQuestion() {
     if (currentMovieIndex >= movies.length) {
@@ -107,8 +190,19 @@ function loadNextQuestion() {
     moviePlot.textContent = currentMovie.plot;
     moviePoster.src = currentMovie.posterPath;
 
+    // Populate the dropdown with movie titles
+    const movieGuessDropdown = document.getElementById('movie-guess');
+    movieGuessDropdown.innerHTML = '<option value="">Select a Movie</option>'; // Clear previous options
+    movies.forEach(movie => {
+        const option = document.createElement('option');
+        option.value = movie.title;
+        option.textContent = movie.title;
+        movieGuessDropdown.appendChild(option);
+    });
+
     startTimer();
 }
+
 
 // Hint Handling
 hint1Btn.addEventListener('click', () => applyHint('genre'));
@@ -136,7 +230,8 @@ movieGuessInput.addEventListener('keypress', (e) => {
 });
 
 function checkGuess() {
-    const userGuess = movieGuessInput.value.trim().toLowerCase();
+    const movieGuessDropdown = document.getElementById('movie-guess');
+    const userGuess = movieGuessDropdown.value.trim().toLowerCase();
     const currentMovie = movies[currentMovieIndex];
     const correctTitle = currentMovie.title.toLowerCase();
 
@@ -149,9 +244,9 @@ function checkGuess() {
         handleCorrectGuess();
     } else {
         feedbackText.textContent = 'Wrong. Try again!';
-        movieGuessInput.value = '';
     }
 }
+
 
 function handleCorrectGuess() {
     moviePosterContainer.classList.remove('hidden');
@@ -199,6 +294,12 @@ function displayHighScores() {
         (score) => `<li>${score.name} - ${score.time}s</li>`
     ).join('');
 }
+
+const movieGuessDropdown = document.getElementById('movie-guess');
+movieGuessDropdown.addEventListener('change', () => {
+    submitGuessBtn.disabled = !movieGuessDropdown.value; // Disable submit if no movie is selected
+});
+
 
 // Event Listeners
 newGameBtn.addEventListener('click', showGamePage);
