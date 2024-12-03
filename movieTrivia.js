@@ -10,13 +10,11 @@ const movieGuessInput = document.getElementById('movie-guess');
 const submitGuessBtn = document.getElementById('submit-guess');
 const giveUpBtn = document.getElementById('give-up-btn');
 const nextQuestionBtn = document.getElementById('next-question-btn');
-
 const hint1Btn = document.getElementById('hint1-btn');
 const hint2Btn = document.getElementById('hint2-btn');
 const hint3Btn = document.getElementById('hint3-btn');
 const hintText = document.getElementById('hint-text');
 const feedbackText = document.getElementById('feedback-text');
-
 const totalTimeDisplay = document.getElementById('total-time');
 const currentQuestionDisplay = document.getElementById('current-question');
 const moviePosterContainer = document.getElementById('movie-reveal-container');
@@ -30,25 +28,20 @@ let totalTime = 0;
 let questionStartTime = 0;
 let hintsUsed = 0;
 let timerInterval;
+let highScores = JSON.parse(localStorage.getItem('highScores')) || [];
 
+// Timer Functions
 function startTimer() {
-    if (timerInterval) clearInterval(timerInterval); // Clear any existing interval
-    questionStartTime = Date.now(); // Reset the start time
+    if (timerInterval) clearInterval(timerInterval);
+    questionStartTime = Date.now();
     timerInterval = setInterval(() => {
         const elapsedTime = Math.floor((Date.now() - questionStartTime) / 1000);
-        totalTimeDisplay.textContent = elapsedTime; // Update the display
-    }, 1000); // Update every second
+        totalTimeDisplay.textContent = elapsedTime;
+    }, 1000);
 }
 
 function stopTimer() {
-    if (timerInterval) clearInterval(timerInterval); // Stop the timer
-}
-
-// Load Movies
-async function loadMovies() {
-    const response = await fetch('movies.json');
-    const data = await response.json();
-    movies = data.movies.sort(() => 0.5 - Math.random()); // Shuffle movies
+    if (timerInterval) clearInterval(timerInterval);
 }
 
 // Navigation Functions
@@ -80,7 +73,11 @@ function startNewGame() {
     totalTimeDisplay.textContent = '0';
     currentQuestionDisplay.textContent = '1';
     
-    // Reset buttons and containers
+    resetUI();
+    loadMovies().then(loadNextQuestion);
+}
+
+function resetUI() {
     hint1Btn.disabled = false;
     hint2Btn.disabled = false;
     hint3Btn.disabled = false;
@@ -91,8 +88,13 @@ function startNewGame() {
     submitGuessBtn.disabled = false;
     movieGuessInput.value = '';
     movieGuessInput.disabled = false;
-    
-    loadNextQuestion();
+}
+
+// Load Movies
+async function loadMovies() {
+    const response = await fetch('movies.json');
+    const data = await response.json();
+    movies = data.movies.sort(() => 0.5 - Math.random());
 }
 
 function loadNextQuestion() {
@@ -105,34 +107,27 @@ function loadNextQuestion() {
     moviePlot.textContent = currentMovie.plot;
     moviePoster.src = currentMovie.posterPath;
 
-    startTimer(); // Start the timer here
+    startTimer();
 }
 
-
 // Hint Handling
-hint1Btn.addEventListener('click', () => {
-    const currentMovie = movies[currentMovieIndex];
-    hintText.textContent = `Genre: ${currentMovie.genre}`;
-    hint1Btn.disabled = true;
-    hintsUsed++;
-    totalTime += 15; // 15-second penalty for hint usage
-});
+hint1Btn.addEventListener('click', () => applyHint('genre'));
+hint2Btn.addEventListener('click', () => applyHint('releaseDate'));
+hint3Btn.addEventListener('click', () => applyHint('mainCast'));
 
-hint2Btn.addEventListener('click', () => {
+function applyHint(hintType) {
     const currentMovie = movies[currentMovieIndex];
-    hintText.textContent += ` | Release Date: ${currentMovie.releaseDate}`;
-    hint2Btn.disabled = true;
-    hintsUsed++;
-    totalTime += 15; // 15-second penalty for hint usage
-});
+    let hintContent = '';
 
-hint3Btn.addEventListener('click', () => {
-    const currentMovie = movies[currentMovieIndex];
-    hintText.textContent += ` | Main Cast: ${currentMovie.mainCast}`;
-    hint3Btn.disabled = true;
+    if (hintType === 'genre') hintContent = `Genre: ${currentMovie.genre}`;
+    else if (hintType === 'releaseDate') hintContent = `Release Date: ${currentMovie.releaseDate}`;
+    else if (hintType === 'mainCast') hintContent = `Main Cast: ${currentMovie.mainCast}`;
+
+    hintText.textContent += ` | ${hintContent}`;
+    document.getElementById(`hint${hintsUsed + 1}-btn`).disabled = true;
     hintsUsed++;
-    totalTime += 15; // 15-second penalty for hint usage
-});
+    totalTime += 15;
+}
 
 // Guess Handling
 submitGuessBtn.addEventListener('click', checkGuess);
@@ -150,99 +145,62 @@ function checkGuess() {
 
     if (userGuess === correctTitle) {
         feedbackText.textContent = `Correct! The movie is ${currentMovie.title}.`;
-        giveUpBtn.classList.add('hidden'); // Hide the "Give Up" button when correct
-        stopTimer(); // Stop the timer here (only when the guess is correct)
+        stopTimer();
+        handleCorrectGuess();
     } else {
-        feedbackText.textContent = `Wrong. Try again!`; // Let user know it's incorrect
-        submitGuessBtn.disabled = false; // Allow them to submit again
-        movieGuessInput.disabled = false; // Allow them to type another guess
-        movieGuessInput.value = ''; // Clear the input for a new guess
-        // Timer keeps running so the user can continue guessing
-    }
-
-    // Reveal poster and show next question button only after correct guess or give up
-    if (userGuess === correctTitle || giveUpBtn.classList.contains('hidden')) {
-        moviePosterContainer.classList.remove('hidden');
-        nextQuestionBtn.classList.remove('hidden');
-        submitGuessBtn.disabled = true;
-        movieGuessInput.disabled = true;
+        feedbackText.textContent = 'Wrong. Try again!';
+        movieGuessInput.value = '';
     }
 }
 
-
+function handleCorrectGuess() {
+    moviePosterContainer.classList.remove('hidden');
+    nextQuestionBtn.classList.remove('hidden');
+    submitGuessBtn.disabled = true;
+    movieGuessInput.disabled = true;
+}
 
 // Give Up Function
 giveUpBtn.addEventListener('click', () => {
     const currentMovie = movies[currentMovieIndex];
-    feedbackText.textContent = `You gave up. The movie was ${currentMovie.title}. 60 Seconds added to your time!`;
-    submitGuessBtn.disabled = true;
-    movieGuessInput.disabled = true;
-    moviePosterContainer.classList.remove('hidden');
-    nextQuestionBtn.classList.remove('hidden');
-    
-    // Calculate time and add penalties
-    const questionTime = Math.floor((Date.now() - questionStartTime) / 1000);
-    totalTime += questionTime + 60 + (hintsUsed * 30); // Add 60-second penalty for giving up
-    stopTimer(); // Ensure the timer is stopped
+    feedbackText.textContent = `You gave up. The movie was ${currentMovie.title}. 60 seconds added!`;
+    totalTime += 60 + hintsUsed * 30;
+    stopTimer();
+    handleCorrectGuess();
 });
 
 // Next Question Handling
 nextQuestionBtn.addEventListener('click', () => {
     currentMovieIndex++;
     currentQuestionDisplay.textContent = `${currentMovieIndex + 1}`;
-    
-    // Reset for next question
-    hintText.textContent = '';
-    feedbackText.textContent = '';
-    moviePosterContainer.classList.add('hidden');
-    nextQuestionBtn.classList.add('hidden');
-    submitGuessBtn.disabled = false;
-    movieGuessInput.disabled = false;
-    movieGuessInput.value = '';
-    
-    // Reset hint buttons
-    hint1Btn.disabled = false;
-    hint2Btn.disabled = false;
-    hint3Btn.disabled = false;
-    hintsUsed = 0;
-    
+    resetUI();
     loadNextQuestion();
 });
 
 // End Game Function
 function endGame() {
+    stopTimer();
     gamePage.classList.add('hidden');
     const playerName = prompt('Game Over! Enter your name for the high score:');
-    if (playerName) {
-        saveHighScore(playerName, totalTime);
-    }
+    if (playerName) saveHighScore(playerName, totalTime);
     showHighScoresPage();
 }
 
 // High Score Functions
 function saveHighScore(name, time) {
-    let highScores = JSON.parse(localStorage.getItem('movieTriviaHighScores')) || [];
     highScores.push({ name, time });
-    
-    // Sort and keep top 10
     highScores.sort((a, b) => a.time - b.time);
-    highScores = highScores.slice(0, 10);
-    
-    localStorage.setItem('movieTriviaHighScores', JSON.stringify(highScores));
+    highScores = highScores.slice(0, 10); // Keep top 10 scores
+    localStorage.setItem('highScores', JSON.stringify(highScores));
 }
 
 function displayHighScores() {
-    const highScores = JSON.parse(localStorage.getItem('movieTriviaHighScores')) || [];
-    highScoresList.innerHTML = highScores.map((score, index) => 
-        `<li>${index + 1}. ${score.name} - ${score.time} seconds</li>`
+    highScoresList.innerHTML = highScores.map(
+        (score) => `<li>${score.name} - ${score.time}s</li>`
     ).join('');
 }
 
-// Event Listeners for Navigation
+// Event Listeners
 newGameBtn.addEventListener('click', showGamePage);
 highScoresBtn.addEventListener('click', showHighScoresPage);
 returnBtn.addEventListener('click', showTitlePage);
-
-// Initial Setup
-loadMovies();
-showTitlePage();
