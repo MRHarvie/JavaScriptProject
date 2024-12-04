@@ -21,7 +21,7 @@ const moviePosterContainer = document.getElementById('movie-reveal-container');
 const moviePoster = document.getElementById('movie-poster');
 const highScoresList = document.getElementById('high-scores-list');
 
-// Game State Variables
+// Game Variables
 let movies = [];
 let currentMovieIndex = 0;
 let totalTime = 0;
@@ -76,7 +76,7 @@ function startNewGame() {
     resetUI();
     loadMovies().then(loadNextQuestion);
 }
-
+// function to reset the game's UI
 function resetUI() {
     hint1Btn.disabled = false;
     hint2Btn.disabled = false;
@@ -92,7 +92,7 @@ function resetUI() {
 }
 
 
-// Load Movies
+// Fucntion to Load Movies, moved from JSON file
 async function loadMovies() {
     movies = [
         {
@@ -179,7 +179,7 @@ async function loadMovies() {
     movies = movies.sort(() => 0.5 - Math.random()); // Shuffle movies randomly
 }
 
-
+// Function to Load Next Question, *fixed with dropdown
 function loadNextQuestion() {
     if (currentMovieIndex >= movies.length) {
         endGame();
@@ -212,7 +212,6 @@ hint3Btn.addEventListener('click', () => applyHint('mainCast'));
 function applyHint(hintType) {
     const currentMovie = movies[currentMovieIndex];
     let hintContent = '';
-
     if (hintType === 'genre') hintContent = `Genre: ${currentMovie.genre}`;
     else if (hintType === 'releaseDate') hintContent = `Release Date: ${currentMovie.releaseDate}`;
     else if (hintType === 'mainCast') hintContent = `Main Cast: ${currentMovie.mainCast}`;
@@ -223,7 +222,7 @@ function applyHint(hintType) {
     totalTime += 15;
 }
 
-// Guess Handling
+// Guess handling event listners and function to check guess
 submitGuessBtn.addEventListener('click', checkGuess);
 movieGuessInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') checkGuess();
@@ -255,7 +254,7 @@ function handleCorrectGuess() {
     movieGuessInput.disabled = true;
 }
 
-// Give Up Function
+// Give Up Function. Adds 60 seconds to the timer if you choose to give up
 giveUpBtn.addEventListener('click', () => {
     const currentMovie = movies[currentMovieIndex];
     feedbackText.textContent = `You gave up. The movie was ${currentMovie.title}. 60 seconds added!`;
@@ -264,7 +263,7 @@ giveUpBtn.addEventListener('click', () => {
     handleCorrectGuess();
 });
 
-// Next Question Handling
+// Next question button event listener
 nextQuestionBtn.addEventListener('click', () => {
     currentMovieIndex++;
     currentQuestionDisplay.textContent = `${currentMovieIndex + 1}`;
@@ -281,7 +280,7 @@ function endGame() {
     showHighScoresPage();
 }
 
-// High Score Functions
+// High Score Functions. Saves to local storage
 function saveHighScore(name, time) {
     highScores.push({ name, time });
     highScores.sort((a, b) => a.time - b.time);
@@ -297,7 +296,7 @@ function displayHighScores() {
 
 const movieGuessDropdown = document.getElementById('movie-guess');
 movieGuessDropdown.addEventListener('change', () => {
-    submitGuessBtn.disabled = !movieGuessDropdown.value; // Disable submit if no movie is selected
+    submitGuessBtn.disabled = !movieGuessDropdown.value; // Disable submit button if no movie is selected
 });
 
 
