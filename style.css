@@ -83,6 +83,14 @@ button:focus {
     border-radius: 25px;
 }
 
+#title-photo {
+    display: block;
+    margin: 20px auto;
+    max-width: 100%;
+    height: auto;
+}
+
+
 /* Movie Plot Container */
 #movie-plot-container {
     margin-bottom: 1rem; 

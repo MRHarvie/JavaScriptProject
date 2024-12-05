@@ -20,6 +20,7 @@ const currentQuestionDisplay = document.getElementById('current-question');
 const moviePosterContainer = document.getElementById('movie-reveal-container');
 const moviePoster = document.getElementById('movie-poster');
 const highScoresList = document.getElementById('high-scores-list');
+const titlePhoto = document.getElementById('title-photo');
 
 // Game Variables
 let movies = [];
@@ -49,12 +50,15 @@ function showTitlePage() {
     titlePage.classList.remove('hidden');
     gamePage.classList.add('hidden');
     highScoresPage.classList.add('hidden');
+    titlePhoto.style.display = 'block';
 }
+
 
 function showGamePage() {
     titlePage.classList.add('hidden');
     gamePage.classList.remove('hidden');
     highScoresPage.classList.add('hidden');
+    titlePhoto.style.display = 'none';
     startNewGame();
 }
 
@@ -86,9 +90,9 @@ function resetUI() {
     moviePosterContainer.classList.add('hidden');
     nextQuestionBtn.classList.add('hidden');
     submitGuessBtn.disabled = false;
-    const movieGuessDropdown = document.getElementById('movie-guess');
-    movieGuessDropdown.disabled = false; // Enable dropdown
-    movieGuessDropdown.value = ''; // Clear any previous selection
+    movieGuessInput.disabled = false;
+    movieGuessInput.value = ''; // Clear dropdown input
+    giveUpBtn.classList.remove('hidden'); // Show "Give Up" button for new question
 }
 
 
@@ -223,7 +227,22 @@ function applyHint(hintType) {
 }
 
 // Guess handling event listners and function to check guess
-submitGuessBtn.addEventListener('click', checkGuess);
+submitGuessBtn.addEventListener('click', () => {
+    const userGuess = movieGuessInput.value.trim().toLowerCase();
+    const correctAnswer = movies[currentMovieIndex].title.toLowerCase();
+
+    if (userGuess === correctAnswer) {
+        feedbackText.textContent = "Correct! Well done!";
+        giveUpBtn.classList.add('hidden'); // Hide the "Give Up" button
+        moviePosterContainer.classList.remove('hidden'); // Reveal movie poster
+        nextQuestionBtn.classList.remove('hidden'); // Show "Next Question" button
+        submitGuessBtn.disabled = true; // Disable guess input
+        movieGuessInput.disabled = true; // Disable dropdown
+    } else {
+        feedbackText.textContent = "Incorrect! Try again.";
+    }
+});
+
 movieGuessInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') checkGuess();
 });
@@ -256,11 +275,12 @@ function handleCorrectGuess() {
 
 // Give Up Function. Adds 60 seconds to the timer if you choose to give up
 giveUpBtn.addEventListener('click', () => {
-    const currentMovie = movies[currentMovieIndex];
-    feedbackText.textContent = `You gave up. The movie was ${currentMovie.title}. 60 seconds added!`;
-    totalTime += 60 + hintsUsed * 30;
-    stopTimer();
-    handleCorrectGuess();
+    feedbackText.textContent = `The correct answer was: ${movies[currentMovieIndex].title}`;
+    giveUpBtn.classList.add('hidden'); 
+    moviePosterContainer.classList.remove('hidden'); 
+    nextQuestionBtn.classList.remove('hidden'); 
+    submitGuessBtn.disabled = true; 
+    movieGuessInput.disabled = true; 
 });
 
 // Next question button event listener
