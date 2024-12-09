@@ -21,9 +21,12 @@ const moviePosterContainer = document.getElementById('movie-reveal-container');
 const moviePoster = document.getElementById('movie-poster');
 const highScoresList = document.getElementById('high-scores-list');
 const titlePhoto = document.getElementById('title-photo');
+//Sounds
 const victorySound = new Audio('Sounds/right.wav');
 const giveUpSound = new Audio('Sounds/wrong.wav');
-
+const timerSound = new Audio('Sounds/timer.wav');
+const hintSound = new Audio('Sounds/hint.wav');
+timerSound.loop = true;
 
 // Game Variables
 let movies = [];
@@ -38,6 +41,7 @@ let highScores = JSON.parse(localStorage.getItem('highScores')) || [];
 function startTimer() {
     if (timerInterval) clearInterval(timerInterval);
     questionStartTime = Date.now();
+    timerSound.play(); // Start playing the timer sound
     timerInterval = setInterval(() => {
         const elapsedTime = Math.floor((Date.now() - questionStartTime) / 1000);
         totalTimeDisplay.textContent = elapsedTime;
@@ -46,6 +50,8 @@ function startTimer() {
 
 function stopTimer() {
     if (timerInterval) clearInterval(timerInterval);
+    timerSound.pause();
+    timerSound.currentTime = 0; // Reset sound to the beginning
 }
 
 // Navigation Functions
@@ -216,18 +222,32 @@ hint1Btn.addEventListener('click', () => applyHint('genre'));
 hint2Btn.addEventListener('click', () => applyHint('releaseDate'));
 hint3Btn.addEventListener('click', () => applyHint('mainCast'));
 
-function applyHint(hintType) {
-    const currentMovie = movies[currentMovieIndex];
-    let hintContent = '';
-    if (hintType === 'genre') hintContent = `Genre: ${currentMovie.genre}`;
-    else if (hintType === 'releaseDate') hintContent = `Release Date: ${currentMovie.releaseDate}`;
-    else if (hintType === 'mainCast') hintContent = `Main Cast: ${currentMovie.mainCast}`;
+// Global tracker for used hints
+let hintsUsedTracker = {};
 
-    hintText.textContent += ` | ${hintContent}`;
-    document.getElementById(`hint${hintsUsed + 1}-btn`).disabled = true;
+function applyHint(hintType) {
+    hintSound.play();
+    const currentMovie = movies[currentMovieIndex];
+
+    const hints = {
+        genre: `Genre: ${currentMovie.genre}`,
+        releaseDate: `Release Date: ${currentMovie.releaseDate}`,
+        mainCast: `Main Cast: ${currentMovie.mainCast}`
+    };
+
+    if (!hintsUsedTracker[hintType]) {
+        hintsUsedTracker[hintType] = hints[hintType];
+    }
+
+    hintText.textContent = Object.values(hintsUsedTracker).join(' | ');
+    document.getElementById(`hint${hintType.charAt(0).toUpperCase() + hintType.slice(1)}-btn`).disabled = true;
+
+    // Track the number of hints used and add penalty time
     hintsUsed++;
     totalTime += 15;
 }
+
+
 
 // Guess handling event listners and function to check guess
 submitGuessBtn.addEventListener('click', () => {
@@ -252,6 +272,11 @@ submitGuessBtn.addEventListener('click', () => {
 // Function to play the "victory" sound
 function playVictorySound() {
     victorySound.play();
+}
+
+// Function to play the "hint" sound
+function playHintSound() {
+    hintSound.play();
 }
 
 movieGuessInput.addEventListener('keypress', (e) => {
@@ -288,6 +313,7 @@ function handleCorrectGuess() {
 giveUpBtn.addEventListener('click', () => {
     playGiveUpSound(); // Play the "give up" sound
     revealAnswer();
+    stopTimer();
 });
 
 // Function to play the "Give Up" sound
