@@ -21,6 +21,9 @@ const moviePosterContainer = document.getElementById('movie-reveal-container');
 const moviePoster = document.getElementById('movie-poster');
 const highScoresList = document.getElementById('high-scores-list');
 const titlePhoto = document.getElementById('title-photo');
+const victorySound = new Audio('Sounds/right.wav');
+const giveUpSound = new Audio('Sounds/wrong.wav');
+
 
 // Game Variables
 let movies = [];
@@ -232,16 +235,24 @@ submitGuessBtn.addEventListener('click', () => {
     const correctAnswer = movies[currentMovieIndex].title.toLowerCase();
 
     if (userGuess === correctAnswer) {
+        playVictorySound(); // Play the "victory" sound
         feedbackText.textContent = "Correct! Well done!";
         giveUpBtn.classList.add('hidden'); // Hide the "Give Up" button
         moviePosterContainer.classList.remove('hidden'); // Reveal movie poster
         nextQuestionBtn.classList.remove('hidden'); // Show "Next Question" button
         submitGuessBtn.disabled = true; // Disable guess input
-        movieGuessInput.disabled = true; // Disable dropdown
+        movieGuessInput.disabled = true;
+        stopTimer();
     } else {
+        playGiveUpSound(); // Play the "give up" sound
         feedbackText.textContent = "Incorrect! Try again.";
     }
 });
+
+// Function to play the "victory" sound
+function playVictorySound() {
+    victorySound.play();
+}
 
 movieGuessInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') checkGuess();
@@ -275,13 +286,26 @@ function handleCorrectGuess() {
 
 // Give Up Function. Adds 60 seconds to the timer if you choose to give up
 giveUpBtn.addEventListener('click', () => {
-    feedbackText.textContent = `The correct answer was: ${movies[currentMovieIndex].title}`;
-    giveUpBtn.classList.add('hidden'); 
-    moviePosterContainer.classList.remove('hidden'); 
-    nextQuestionBtn.classList.remove('hidden'); 
-    submitGuessBtn.disabled = true; 
-    movieGuessInput.disabled = true; 
+    playGiveUpSound(); // Play the "give up" sound
+    revealAnswer();
 });
+
+// Function to play the "Give Up" sound
+function playGiveUpSound() {
+    giveUpSound.play();
+}
+
+// Reveal Answer Logic
+function revealAnswer() {
+    moviePoster.src = movies[currentMovieIndex].posterPath;
+    moviePoster.alt = `Poster of ${movies[currentMovieIndex].title}`;
+    moviePosterContainer.classList.remove('hidden');
+    feedbackText.textContent = `The correct answer was: ${movies[currentMovieIndex].title}`;
+    submitGuessBtn.disabled = true;
+    movieGuessInput.disabled = true;
+    giveUpBtn.classList.add('hidden'); // Hide the "Give Up" button after revealing the answer
+    nextQuestionBtn.classList.remove('hidden'); // Show "Next Question" button
+}
 
 // Next question button event listener
 nextQuestionBtn.addEventListener('click', () => {
