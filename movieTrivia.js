@@ -26,7 +26,12 @@ const victorySound = new Audio('Sounds/right.wav');
 const giveUpSound = new Audio('Sounds/wrong.wav');
 const timerSound = new Audio('Sounds/timer.wav');
 const hintSound = new Audio('Sounds/hint.wav');
+const musicSound = new Audio('Sounds/music.wav');
 timerSound.loop = true;
+
+window.addEventListener('load', function() {
+    playMusicSound();  // Play music as soon as the page loads
+});
 
 // Game Variables
 let movies = [];
@@ -56,6 +61,7 @@ function stopTimer() {
 
 // Navigation Functions
 function showTitlePage() {
+    musicSound.play();
     titlePage.classList.remove('hidden');
     gamePage.classList.add('hidden');
     highScoresPage.classList.add('hidden');
@@ -272,6 +278,11 @@ submitGuessBtn.addEventListener('click', () => {
 // Function to play the "victory" sound
 function playVictorySound() {
     victorySound.play();
+}
+
+// Main Menu Music Function
+function playMusicSound() {
+    musicSound.play();
 }
 
 // Function to play the "hint" sound
