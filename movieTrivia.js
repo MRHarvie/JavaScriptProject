@@ -21,6 +21,7 @@ const moviePosterContainer = document.getElementById('movie-reveal-container');
 const moviePoster = document.getElementById('movie-poster');
 const highScoresList = document.getElementById('high-scores-list');
 const titlePhoto = document.getElementById('title-photo');
+
 //Sounds
 const victorySound = new Audio('Sounds/right.wav');
 const giveUpSound = new Audio('Sounds/wrong.wav');
@@ -30,7 +31,7 @@ const musicSound = new Audio('Sounds/music.wav');
 timerSound.loop = true;
 
 window.addEventListener('load', function() {
-    playMusicSound();  // Play music as soon as the page loads
+    playMusicSound();  // Play music as soon as the page loads, work in progress
 });
 
 // Game Variables
@@ -188,7 +189,7 @@ async function loadMovies() {
         },
         {
             "title": "Titanic",
-            "plot": "A seventeen-year-old aristocrat falls in love with a kind but poor artist aboard the luxurious, ill-fated R.M.S. Titanic.",
+            "plot": "A seventeen-year-old aristocrat falls in love with a kind but poor artist aboard a luxurious, ill-fated vessel.",
             "genre": "Romance, Drama",
             "releaseDate": "1997",
             "mainCast": "Leonardo DiCaprio, Kate Winslet",
