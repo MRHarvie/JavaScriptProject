@@ -21,6 +21,8 @@ const moviePosterContainer = document.getElementById('movie-reveal-container');
 const moviePoster = document.getElementById('movie-poster');
 const highScoresList = document.getElementById('high-scores-list');
 const titlePhoto = document.getElementById('title-photo');
+const musicBtn = document.getElementById('musicBtn');
+     
 
 //Sounds
 const victorySound = new Audio('Sounds/right.wav');
@@ -30,9 +32,13 @@ const hintSound = new Audio('Sounds/hint.wav');
 const musicSound = new Audio('Sounds/music.wav');
 timerSound.loop = true;
 
-window.addEventListener('load', function() {
-    playMusicSound();  // Play music as soon as the page loads, work in progress
+
+// Music Button
+musicBtn.addEventListener('click', () => {
+    playMusicSound();
+    musicBtn.style.display = 'none'; // Hide the button after the music starts
 });
+
 
 // Game Variables
 let movies = [];
@@ -57,8 +63,11 @@ function startTimer() {
 function stopTimer() {
     if (timerInterval) clearInterval(timerInterval);
     timerSound.pause();
-    timerSound.currentTime = 0; // Reset sound to the beginning
+    timerSound.currentTime = 0; // Reset sound
+    const questionElapsedTime = Math.floor((Date.now() - questionStartTime) / 1000);
+    totalTime += questionElapsedTime; // Add the question time to total time
 }
+
 
 // Navigation Functions
 function showTitlePage() {
@@ -283,7 +292,8 @@ function playVictorySound() {
 
 // Main Menu Music Function
 function playMusicSound() {
-    musicSound.play();
+    musicSound.loop = true; // Loop the music if desired
+    musicSound.play().catch(error => console.error('Failed to play music:', error));
 }
 
 // Function to play the "hint" sound
@@ -321,12 +331,17 @@ function handleCorrectGuess() {
     movieGuessInput.disabled = true;
 }
 
-// Give Up Function. Adds 60 seconds to the timer if you choose to give up
+// "Give Up" Button Functionality
 giveUpBtn.addEventListener('click', () => {
-    playGiveUpSound(); // Play the "give up" sound
-    revealAnswer();
-    stopTimer();
+    giveUpSound.play(); // Play the sound
+    totalTime += 60; // Add 60 seconds to total time
+    totalTimeDisplay.textContent = totalTime; 
+    stopTimer(); 
+    revealAnswer(); // Show the correct answer
+    giveUpBtn.classList.add('hidden'); // Hide the "Give Up" button
+    nextQuestionBtn.classList.remove('hidden'); 
 });
+
 
 // Function to play the "Give Up" sound
 function playGiveUpSound() {
@@ -356,11 +371,16 @@ nextQuestionBtn.addEventListener('click', () => {
 // End Game Function
 function endGame() {
     stopTimer();
+    feedbackText.textContent = `Game Over! Your total time: ${totalTime} seconds`;
     gamePage.classList.add('hidden');
+    highScores.push(totalTime);
+    localStorage.setItem('highScores', JSON.stringify(highScores));
     const playerName = prompt('Game Over! Enter your name for the high score:');
     if (playerName) saveHighScore(playerName, totalTime);
     showHighScoresPage();
 }
+
+
 
 // High Score Functions. Saves to local storage
 function saveHighScore(name, time) {
@@ -375,6 +395,8 @@ function displayHighScores() {
         (score) => `<li>${score.name} - ${score.time}s</li>`
     ).join('');
 }
+
+
 
 const movieGuessDropdown = document.getElementById('movie-guess');
 movieGuessDropdown.addEventListener('change', () => {
