@@ -51,22 +51,33 @@ let highScores = JSON.parse(localStorage.getItem('highScores')) || [];
 
 // Timer Functions
 function startTimer() {
-    if (timerInterval) clearInterval(timerInterval);
-    questionStartTime = Date.now();
+    if (timerInterval) clearInterval(timerInterval); // Clear any existing timer
+    questionStartTime = Date.now(); // Reset start time for the new question
     timerSound.play(); // Start playing the timer sound
     timerInterval = setInterval(() => {
         const elapsedTime = Math.floor((Date.now() - questionStartTime) / 1000);
-        totalTimeDisplay.textContent = elapsedTime;
+        totalTimeDisplay.textContent = `${elapsedTime + totalTime}`; // Show running total
     }, 1000);
 }
 
+
 function stopTimer() {
-    if (timerInterval) clearInterval(timerInterval);
+    if (timerInterval) {
+        clearInterval(timerInterval); // Stop the timer interval
+        timerInterval = null;
+    }
     timerSound.pause();
     timerSound.currentTime = 0; // Reset sound
-    const questionElapsedTime = Math.floor((Date.now() - questionStartTime) / 1000);
-    totalTime += questionElapsedTime; // Add the question time to total time
+
+    if (questionStartTime) {
+        const questionElapsedTime = Math.floor((Date.now() - questionStartTime) / 1000);
+        totalTime += questionElapsedTime; // Accumulate total time
+        questionStartTime = 0; // Reset question start time
+    }
+    totalTimeDisplay.textContent = `${totalTime}`; // Update UI with total accumulated time
 }
+
+
 
 
 // Navigation Functions
@@ -206,11 +217,17 @@ async function loadMovies() {
         }
     ];
     movies = movies.sort(() => 0.5 - Math.random()); // Shuffle movies randomly
+ // Shuffle movies randomly
 }
 
 // Function to Load Next Question, *fixed with dropdown
 function loadNextQuestion() {
+    if (currentMovieIndex > 0) {
+        stopTimer(); // Stop the timer for the previous question
+    }
+
     if (currentMovieIndex >= movies.length) {
+        stopTimer(); // Ensure timer is stopped at the end
         endGame();
         return;
     }
@@ -219,9 +236,8 @@ function loadNextQuestion() {
     moviePlot.textContent = currentMovie.plot;
     moviePoster.src = currentMovie.posterPath;
 
-    // Populate the dropdown with movie titles
     const movieGuessDropdown = document.getElementById('movie-guess');
-    movieGuessDropdown.innerHTML = '<option value="">Select a Movie</option>'; // Clear previous options
+    movieGuessDropdown.innerHTML = '<option value="">Select a Movie</option>';
     movies.forEach(movie => {
         const option = document.createElement('option');
         option.value = movie.title;
@@ -229,8 +245,12 @@ function loadNextQuestion() {
         movieGuessDropdown.appendChild(option);
     });
 
-    startTimer();
+    currentQuestionDisplay.textContent = currentMovieIndex + 1; // Update question number display
+
+    startTimer(); // Start the timer for the new question
 }
+
+
 
 
 // Hint Handling
@@ -370,7 +390,9 @@ nextQuestionBtn.addEventListener('click', () => {
 
 // End Game Function
 function endGame() {
-    stopTimer();
+    stopTimer(); // Stop the timer when the game ends
+    totalTimeDisplay.textContent = `Total Time: ${totalTime} seconds`; // Display total time
+    alert(`Game Over! Your total time was: ${totalTime} seconds.`);
     feedbackText.textContent = `Game Over! Your total time: ${totalTime} seconds`;
     gamePage.classList.add('hidden');
     highScores.push(totalTime);
@@ -383,19 +405,22 @@ function endGame() {
 
 
 // High Score Functions. Saves to local storage
-function saveHighScore(name, time) {
-    highScores.push({ name, time });
-    highScores.sort((a, b) => a.time - b.time);
+function saveHighScore(playerName) {
+    highScores.push({ name: playerName, time: totalTime });
+    highScores.sort((a, b) => a.time - b.time); // Sort by shortest time
     highScores = highScores.slice(0, 10); // Keep top 10 scores
     localStorage.setItem('highScores', JSON.stringify(highScores));
 }
+    
 
 function displayHighScores() {
-    highScoresList.innerHTML = highScores.map(
-        (score) => `<li>${score.name} - ${score.time}s</li>`
-    ).join('');
+    highScoresList.innerHTML = '';
+    highScores.forEach((score, index) => {
+        const li = document.createElement('li');
+        li.textContent = `${index + 1}. ${score.name} - ${score.time} seconds`;
+        highScoresList.appendChild(li);
+    });
 }
-
 
 
 const movieGuessDropdown = document.getElementById('movie-guess');
