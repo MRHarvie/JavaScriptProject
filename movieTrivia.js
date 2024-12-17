@@ -395,9 +395,10 @@ function endGame() {
     alert(`Game Over! Your total time was: ${totalTime} seconds.`);
     feedbackText.textContent = `Game Over! Your total time: ${totalTime} seconds`;
     gamePage.classList.add('hidden');
-    highScores.push(totalTime);
     localStorage.setItem('highScores', JSON.stringify(highScores));
     const playerName = prompt('Game Over! Enter your name for the high score:');
+    highScores.push({ name: playerName, time: totalTime });
+    highScores.sort((a, b) => a.time - b.time);
     if (playerName) saveHighScore(playerName, totalTime);
     showHighScoresPage();
 }
@@ -405,22 +406,24 @@ function endGame() {
 
 
 // High Score Functions. Saves to local storage
-function saveHighScore(playerName) {
-    highScores.push({ name: playerName, time: totalTime });
-    highScores.sort((a, b) => a.time - b.time); // Sort by shortest time
-    highScores = highScores.slice(0, 10); // Keep top 10 scores
-    localStorage.setItem('highScores', JSON.stringify(highScores));
+function saveHighScore(name, time) {
+    if (name && time) {
+        highScores.push({ name, time });
+        highScores.sort((a, b) => a.time - b.time); // Sort by time (lowest to highest)
+        localStorage.setItem('highScores', JSON.stringify(highScores));
+    }
 }
-    
+
 
 function displayHighScores() {
-    highScoresList.innerHTML = '';
+    highScoresList.innerHTML = ''; // Clear existing list
     highScores.forEach((score, index) => {
-        const li = document.createElement('li');
-        li.textContent = `${index + 1}. ${score.name} - ${score.time} seconds`;
-        highScoresList.appendChild(li);
+        const listItem = document.createElement('li');
+        listItem.textContent = `${index + 1}. ${score.name} - ${score.time} seconds`;
+        highScoresList.appendChild(listItem);
     });
 }
+
 
 
 const movieGuessDropdown = document.getElementById('movie-guess');
